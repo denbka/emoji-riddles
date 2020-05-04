@@ -1,0 +1,5 @@
+export * from './Login'
+export * from './Game'
+export * from './Crud'
+export * from './Register'
+export * from './Profile'

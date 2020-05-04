@@ -1,0 +1,59 @@
+.drawer {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    transform: translate3d(-100vw, 0, 0);
+    background: #6C63FF;
+    transition: transform .4s cubic-bezier(0, .52, 0, 1);
+    width: 100vw;
+    height: 100vh;
+    overflow: scroll;
+    &__list {
+        list-style-type: none;
+        line-height: 50px;
+
+        &__item {
+            font-size: 30px;
+            color: white;
+            font-family: 'Fira Sans';
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        &__item:hover {
+            color: #666;
+        }
+    }
+
+    button {
+        height: 20px;
+        margin: 20px;
+    }
+}
+
+.drawer-open {
+    transform: translate3d(0vw, 0, 0) !important;
+    overflow: hidden !important;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    height: 50px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.icon {
+    font-size: 24px;
+}

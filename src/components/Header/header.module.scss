@@ -1,0 +1,40 @@
+.title {
+    display: flex;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.container {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    width: 100vw;
+    height: 50px;
+    z-index: 1000;
+}
+
+.content {
+    width: 90%;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.smallZIndex {
+    z-index: -1;
+}
+
+.rButton {
+    display: flex;
+    justify-content: column;
+    align-items: center;
+    color: #231f20;
+    z-index: 1001;
+    font-size: 24px;
+}
+
+.abs {
+    top: 5px;
+}

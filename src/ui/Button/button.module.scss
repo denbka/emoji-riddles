@@ -1,0 +1,15 @@
+.button {
+    background: #6C63FF;
+    border-radius: 5px;
+    padding: 10px 0;
+    height: 50px;
+    border: 0;
+    color: #fff;
+    outline: 0;
+    font-size: 18px;
+    transition: .05s;
+}
+
+.button:active {
+    background: rgb(84, 75, 255);
+}
