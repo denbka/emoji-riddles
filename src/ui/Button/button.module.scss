@@ -13,3 +13,7 @@
 .button:active {
     background: rgb(84, 75, 255);
 }
+
+.disabled {
+    cursor: not-allowed;
+}

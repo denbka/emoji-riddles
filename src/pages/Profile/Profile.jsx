@@ -38,7 +38,7 @@ export const Profile = ({ user }) => {
                     </Upload>
                     : <div> 
                         <img className={style.notEmptyAvatar} src={user.photoURL} alt="аватар" onClick={() => setIsModal(true)} />
-                        {isModal && <Modal onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove}>
+                        {isModal && <Modal isProfile onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove} bgOpacity="1" width="50%" height="100%">
                             <img src={user.photoURL} alt="аватар" />
                         </Modal>}
                     </div>
