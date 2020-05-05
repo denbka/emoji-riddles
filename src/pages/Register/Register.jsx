@@ -21,9 +21,9 @@ export const Register = () => {
             email: response.user.email,
             checkedRiddles: [],
             points: 0,
+            photoURL: null,
             info: {
-              firstName: null,
-              lastName: null,
+              username: null,
               description: null,
               phone: null,
               social: {

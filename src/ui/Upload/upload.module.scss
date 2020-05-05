@@ -1,0 +1,22 @@
+.container {
+
+}
+
+.nativeInput {
+    display: none;
+}
+
+.labelContainer {
+    border-radius: 50%;
+    position: relative;
+}
+
+.label, .label img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.label img {
+    object-fit: cover;
+}

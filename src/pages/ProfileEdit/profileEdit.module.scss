@@ -1,0 +1,39 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
+    margin: 0 auto;
+
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    &Item {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+        font-size: 18px;
+    }
+}
+
+.value {
+    border: 0;
+    color: rgb(70, 70, 70);
+    // border-bottom: 1px solid rgb(207, 207, 207);
+}
+
+hr {
+    width: 100%;
+}
+
+button {
+    width: 100%;
+    // margin-top: auto
+}

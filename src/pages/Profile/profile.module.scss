@@ -9,6 +9,7 @@
 }
 
 .displayName {
+    margin-top: 5px;
     font-size: 12px;
     color: #666666;
 }
@@ -20,11 +21,19 @@
 }
 
 .button {
-    background: #FF545E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 50%;
-    margin: 0 auto;
+    height: 50px;
     margin-top: 25px;
     margin-bottom: 40px;
+    background: #FF545E;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: 0;
+    font-size: 18px;
 }
 
 .infobar {
@@ -56,5 +65,11 @@
 
 .allRiddles {
     width: 100%;
-    margin-bottom: 50px;
+    margin-bottom: 100px;
+}
+
+.notEmptyAvatar {
+    border-radius: 50%;
+    height: 100px;
+    width: 100px;
 }

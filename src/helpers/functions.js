@@ -9,6 +9,7 @@ export const onlyWords = (str) => {
 export const getTitle = (route, params) => {
     console.log(params);
     if (route.includes('/riddles/')) return 'Создание загадки'
+    if (route.includes('/profile/edit')) return 'Редактирование профиля'
     if (route.includes('/profile')) return 'Мой профиль'
     if (route.includes('/')) return 'Главная'
 

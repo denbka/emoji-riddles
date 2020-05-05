@@ -6,12 +6,25 @@ import {
   useLocation,
   useParams
 } from "react-router-dom"
-
-import { Login, Crud, Game, Register, Profile } from './pages'
+import { auth, firestore } from './services/firebase'
+import {
+  Login,
+  Crud,
+  Game,
+  Register,
+  Profile,
+  ProfileEdit
+} from './pages'
 import { Header } from './components'
 import { Drawer } from './ui'
-import { adminRoutes, loginRoutes, privateRoutes, publicRoutes, moderationRoutes, getTitle } from './helpers'
-import { auth, firestore } from './services/firebase'
+import {
+  adminRoutes,
+  loginRoutes,
+  privateRoutes,
+  publicRoutes,
+  moderationRoutes,
+  getTitle
+} from './helpers'
 
 const App = () => {
   const [ loading, setLoading ] = useState(true)
@@ -56,7 +69,8 @@ const App = () => {
       <Switch>
         <Route exact path="/"><Game user={user} /></Route>
         <PrivateRoute exact path="/riddles/:action" authenticated={authenticated} component={Crud}></PrivateRoute>
-        <PrivateRoute exact name="profile" path="/profile" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/profile" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/profile/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
         <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
         <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
       </Switch>
