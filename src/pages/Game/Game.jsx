@@ -21,6 +21,7 @@ export const Game = ({ user }) => {
     const index = useRef(0)
 
     useEffect(() => {
+        // Опять же. Лучше вынести это. А в useEffect просто оставить выхов
         firestore.collection('riddles').onSnapshot(async snap => {
             const newData = []
             snap.docs.map(item => {
@@ -38,11 +39,13 @@ export const Game = ({ user }) => {
         })
     }, [])
 
+    // Название параметров от странное
     const [props, set] = useSprings(riddles.length, i => ({ y: i * window.innerHeight, display: 'block' }))
 
     const nextRiddle = () => {
         index.current++
         set(i => {
+            // Это все точно никак через css-классы и classNames не сделать?
             if (i < index.current - 1 || i > index.current + 1) return { display: 'none' }
 
             const y = (i - index.current) * window.innerHeight
@@ -55,9 +58,13 @@ export const Game = ({ user }) => {
     }
     const changeRiddle = async (currentRiddle) => {
         if (!answer.length) return
+        // Вынести все эти преобразования в переменные
+        // const newGuessed = currentRiddle.answer.trim().toLowerCase().includes(answer.trim().toLowerCase());
+        // setGuessed(newGuessed)
         if (currentRiddle.answer.trim().toLowerCase().indexOf(answer.trim().toLowerCase()) !== -1) setGuessed(true)
         else setGuessed(false)
         if (user) {
+            // Снова сервер в компоненте 
             firestore.collection('users').doc(user.email).update({
                 ...user,
                 points: user.points + 10,
@@ -69,6 +76,7 @@ export const Game = ({ user }) => {
 
     const handleFeedback = (value) => {
         setFeedback(value)
+        // Что дает таймаут на 100?
         const time = setTimeout(() => {
             setFeedbackForAuthor(value)
             nextRiddle()
@@ -100,9 +108,11 @@ export const Game = ({ user }) => {
         setDisabledButton(answer.length ? false : true)
     }
 
+    // Модалку лучше вынести отдельно
     if (props.length || index.current <= props.length-1) {
         return <div className={style.container}>
             {props.map(({ display, y }, i) => (
+                // Поч так страшна?
                 <animated.div className={style.body} style={{display, transform: y.interpolate(y => `translate3d(0,${y}px,0)`), background: riddles[i].background }} key={i}>
                     <div className={style.bodyContent}>
                         <div className={style.bodyEmodji}>
@@ -110,6 +120,7 @@ export const Game = ({ user }) => {
                             <span>{riddles[i].emojies}</span>
                         </div>
                         <div className={style.bodyUi}>
+                            {/* Тоже должно быть в форме */}
                             <textarea placeholder="Введите слово или предложение..." value={answer} onChange={handleChangeAnswer} />
                             <Button onClick={() => changeRiddle(riddles[i])} disabled={disabledButton}>Готово</Button>
                         </div>
@@ -141,6 +152,8 @@ export const Game = ({ user }) => {
                 </div>
             </Modal>}
       </div>
+    //  else не нужен. Лучше сразу return делать
+    // И поразбивай на компоненты
     } else return <div className={style.emptyContainer}>
         <div className={style.titleEmptyContainer}>Упс! Загадки кончились. Пустота...</div>
         <img src={Empty} alt="Пустота..."/>
