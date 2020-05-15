@@ -1,3 +1,4 @@
+// Название файла оч странное. Тут может быть все что угодно. Лучше под каждый такой хелпер отдельный файл тогда делать
 export const getRandomNumber = (max) => {
     return Math.floor(Math.random() * Math.floor(max))
 }

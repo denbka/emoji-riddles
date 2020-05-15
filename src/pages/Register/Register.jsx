@@ -15,6 +15,7 @@ export const Register = () => {
     const handleSubmit = async event => {
         event.preventDefault()
         setError('')
+        // Лучше вынести в сервис
         try {
           const response = await signup(formData.email, formData.password)
           firestore.collection('users').doc(response.user.uid).set({

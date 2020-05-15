@@ -18,6 +18,7 @@ export const Crud = ({ user }) => {
     }
 
     const save = (data) => {
+        // Лучше выносить взаимодействие с базой из компонента
         firestore.collection('riddles').add({
             ...data,
             author: user.uid
@@ -32,6 +33,7 @@ export const Crud = ({ user }) => {
             </div>
             <div className={style.bodyUi}>
                 <label>Название</label>
+                {/* Форматирование поехало. И инпуты должны быть в форме. А кнопка должна быть type="submit" */}
                 <input
                 onChange={handleChange}
                 name="title"

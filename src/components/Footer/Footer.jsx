@@ -11,6 +11,8 @@ export const Footer = ({ author }) => {
     return (
         <div className={style.container}>
             <Link to={`/users/${author.uid}`} className={style.info}>
+                {/* У всех картинок должен быть alt. Можешь просто его пустым сделать */}
+                {/* src лучше вынести в отдельную переменную */}
                 <img className={style.avatar} src={author.photoURL ? author.photoURL : stub} />
                 {author.email}
             </Link>

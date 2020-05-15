@@ -10,6 +10,7 @@ export const RiddlesList = ({ riddles }) => {
                 <span><RightOutlined /></span>
             </div>)}
         </div>
+        // Почему тут тоже класс не прокинуть?
         : <LoadingOutlined  class={style.container} style={{minHeight: '200px'}} />
     )
 }

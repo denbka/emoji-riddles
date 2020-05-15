@@ -56,6 +56,7 @@ export const ProfileEdit = ({ user }) => {
 
     if (info) {
         return (
+            // В форму оберни
             <div className={style.container}>
                 <div className={style.info}>
                     <div className={style.infoItem}>
