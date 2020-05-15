@@ -45,7 +45,7 @@ export const ProfileEdit = ({ user }) => {
                 social: social
             }
         });
-        firestore.collection('users').doc(user.email).set({
+        firestore.collection('users').doc(user.uid).set({
             ...formData,
             info: {
                 ...info,

@@ -1,15 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { signout } from '../../helpers'
 import { Link } from 'react-router-dom'
-import { Button, Upload, Modal } from '../../ui'
+import { RiddlesList } from '../../components'
+import { Button, Upload, Modal, message } from '../../ui'
 import style from './profile.module.scss'
-import stub from '../../assets/img/avatar.svg'
+import stub from '../../assets/img/upload-stub.svg'
 import { storage, firebase, firestore } from '../../services/firebase'
-
-
 export const Profile = ({ user }) => {
-
     const [ isModal, setIsModal ] = useState(false)
+    const [ riddles, setRiddles ] = useState([])
+
+    useEffect(() => {
+        firestore.collection('riddles').where('author', '==', user.uid).onSnapshot(snap => {
+            const newData = []
+            snap.docs.map(item => {
+                newData.push(item.data())
+            })
+            setRiddles(newData)
+        })
+    }, [])
 
     const handleChange = (event) => {
         const file = event.target.files[0]
@@ -18,14 +27,23 @@ export const Profile = ({ user }) => {
 
         uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, () => {}, () => {}, () => {
             uploadTask.snapshot.ref.getDownloadURL().then(function(photoURL) {
-                firestore.collection('users').doc(user.email).set({ ...user, photoURL: photoURL })
+                firestore.collection('users').doc(user.uid).set({ ...user, photoURL: photoURL })
             })
         })
     }
 
     const handleRemove = () => {
-        firestore.collection('users').doc(user.email).set({ ...user, photoURL: null })
+        firestore.collection('users').doc(user.uid).set({ ...user, photoURL: null })
         setIsModal(false)
+    }
+
+    const handleClick = () => {
+        // console.log(notification, 123);
+        // notification.notice({
+        //     content: 'content',
+        //     closable: true,
+        //       duration: 2,
+        //   })
     }
 
     return (
@@ -38,14 +56,14 @@ export const Profile = ({ user }) => {
                     </Upload>
                     : <div> 
                         <img className={style.notEmptyAvatar} src={user.photoURL} alt="аватар" onClick={() => setIsModal(true)} />
-                        {isModal && <Modal isProfile onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove} bgOpacity="1" width="50%" height="100%">
+                        {isModal && <Modal isProfile onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove} bgOpacity="1" width="100%" height="50%">
                             <img src={user.photoURL} alt="аватар" />
                         </Modal>}
                     </div>
                     }
                 </div>
                 <span className={style.displayName}>{user.email}</span>
-                <Link to="/profile/edit" className={style.button}>Изменить</Link>
+                <Link to={`/users/${user.uid}/edit`} className={style.button}>Изменить</Link>
                 {user.stats && <div className={style.infobar}>
                     <div className={style.infobarItem}>
                         <span className={style.infobarItemCount}>{user.stats.followers}</span>
@@ -56,12 +74,13 @@ export const Profile = ({ user }) => {
                         <span className={style.infobarItemLabel}>Подписки</span>
                     </div>
                     <div className={style.infobarItem}>
-                        <span className={style.infobarItemCount}>{100}%</span>
-                        <span className={style.infobarItemLabel}>Рейтинг</span>
+                        <span className={style.infobarItemCount}>{user.stats.likes}</span>
+                        <span className={style.infobarItemLabel}>Лайки</span>
                     </div>
                 </div>}
             </div>
-            <Button className={style.allRiddles}>Показать загадки</Button>
+            <RiddlesList riddles={riddles} />
+
             {/* <span onClick={() => signout()}>выйти</span> */}
         </div>
     )

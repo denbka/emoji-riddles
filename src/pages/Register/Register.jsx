@@ -17,7 +17,7 @@ export const Register = () => {
         setError('')
         try {
           const response = await signup(formData.email, formData.password)
-          firestore.collection('users').doc(response.user.email).set({
+          firestore.collection('users').doc(response.user.uid).set({
             email: response.user.email,
             checkedRiddles: [],
             points: 0,
@@ -43,7 +43,8 @@ export const Register = () => {
               recommendations: false
             },
             theme: 'default',
-            lang: 'ru'
+            lang: 'ru',
+            uid: response.user.uid
           })
         } catch (error) {
           setError(error.message)

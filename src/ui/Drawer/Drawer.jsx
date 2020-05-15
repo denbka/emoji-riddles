@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom'
 import { CloseOutlined } from '@ant-design/icons'
 import style from './drawer.module.scss'
 
-export const Drawer = ({ toggleMenu, isOpenMenu, list }) => {
+export const Drawer = ({ toggleMenu, isOpenMenu, list, user }) => {
 
     const history = useHistory()
 
@@ -16,7 +16,7 @@ export const Drawer = ({ toggleMenu, isOpenMenu, list }) => {
             <ul className={style['drawer__list']}>
                 {list.map(item => (
                     <li
-                    onClick={() => { history.push(item.path); toggleMenu() }}
+                    onClick={() => { history.push(item.path === '/profile' ? `/users/${user.uid}` : item.path); toggleMenu() }}
                     className={style['drawer__list__item']}
                     key={item.path}>
                         {item.name}

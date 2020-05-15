@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { auth, firestore } from './services/firebase'
+import { Header } from './components'
+import { Drawer } from './ui'
 import {
   Route,
   Switch,
@@ -6,17 +9,14 @@ import {
   useLocation,
   useParams
 } from "react-router-dom"
-import { auth, firestore } from './services/firebase'
 import {
   Login,
   Crud,
   Game,
   Register,
   Profile,
-  ProfileEdit
+  ProfileEdit,
 } from './pages'
-import { Header } from './components'
-import { Drawer } from './ui'
 import {
   adminRoutes,
   loginRoutes,
@@ -44,8 +44,8 @@ const App = () => {
     auth().onAuthStateChanged((user) => {
       setAuthenticated(user ? true : false)
       if (user) {
-        firestore.collection('users').doc(user.email).onSnapshot(snap => {
-          setUser({uid: user.uid, ...snap.data()})
+        firestore.collection('users').doc(user.uid).onSnapshot(snap => {
+          setUser(snap.data())
           setMenu(privateRoutes)
           setLoading(false)
         })
@@ -65,12 +65,12 @@ const App = () => {
   return loading ? <h2>Loading...</h2> : (
     <>
       <Header isVisible={isVisible} toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} title={title}></Header>
-      <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} />
+      <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} user={user} />
       <Switch>
         <Route exact path="/"><Game user={user} /></Route>
-        <PrivateRoute exact path="/riddles/:action" authenticated={authenticated} component={Crud}></PrivateRoute>
-        <PrivateRoute exact path="/profile" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
-        <PrivateRoute exact path="/profile/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/riddles/:action" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
         <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
         <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
       </Switch>

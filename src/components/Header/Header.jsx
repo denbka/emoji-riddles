@@ -3,7 +3,7 @@ import React from 'react'
 import style from './header.module.scss'
 import { MenuOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 import { useHistory } from 'react-router-dom'
-export const Header = ({ isOpenMenu, toggleMenu, isVisible, title }) => {
+export const Header = ({ isOpenMenu, toggleMenu, isVisible, title, backPath }) => {
     const router = useHistory()
     return (
         <div className={`${style.container} ${isOpenMenu && style.smallZIndex}`}>

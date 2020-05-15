@@ -1,10 +1,12 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useSprings, animated } from 'react-spring'
 import { getRandomNumber } from '../../helpers'
 import style from './game.module.sass'
+import { Footer } from '../../components'
 import { Button, Modal } from '../../ui'
 import { firestore } from '../../services/firebase'
-import { LikeOutlined, LikeFilled, DislikeFilled, DiffOutlined, DislikeOutlined } from '@ant-design/icons'
+import { LikeOutlined, LikeFilled, DislikeFilled, DiffOutlined, DislikeOutlined, LoadingOutlined } from '@ant-design/icons'
+import Empty from '../../assets/img/empty.svg'
 export const Game = ({ user }) => {
 
     const colors = ['#EE5053', '#5AD6FC', '#B362C8', '#EE5053', '#7FC256', '0019ff']
@@ -14,43 +16,27 @@ export const Game = ({ user }) => {
     const [ isModal, setIsModal ] = useState(false)
     const [ feedback, setFeedback ] = useState(null)
     const [ guessed, setGuessed ] = useState(false)
-    const [ time, setTime ] = useState(20)
-    const [ stopTime, setStopTime ] = useState(false)
     const [ disabledButton, setDisabledButton ] = useState(true)
+    const [ author, setAuthor ] = useState(null)
     const index = useRef(0)
 
-    const timerStart = () => {
-        // const interval = setInterval(() => {
-        //     setTime(time-1)
-        //     console.log(time);
-        //     if (time == 0) {
-        //         clearInterval(interval)
-        //     }
-        // }, 500)
-    }
-
-    React.useEffect(() => {
-        firestore.collection('riddles').onSnapshot(snap => {
+    useEffect(() => {
+        firestore.collection('riddles').onSnapshot(async snap => {
             const newData = []
             snap.docs.map(item => {
                 if (user && !user.checkedRiddles.includes(item.id)) {
                     newData.push({ key: item.id, ...item.data(), background: colors[getRandomNumber(colors.length)] })
+                } else if (!user) {
+                    newData.push({ key: item.id, ...item.data(), background: colors[getRandomNumber(colors.length)] })
                 }
             })
             setRiddles(newData)
+            if (newData.length && newData[0].author) {
+                const author = await getAuthor(newData[0].author)
+                setAuthor(author.data())
+            }
         })
     }, [])
-
-    React.useEffect(() => {
-        const interval = setInterval(() => {
-            if (!stopTime) setTime(time-1)
-            if (time === 1) {
-                nextRiddle()
-            }
-            clearInterval(interval)
-        }, 1000)
-    }, [!stopTime && time > 1 && time])
-
 
     const [props, set] = useSprings(riddles.length, i => ({ y: i * window.innerHeight, display: 'block' }))
 
@@ -64,27 +50,19 @@ export const Game = ({ user }) => {
         })
         setAnswer('')
         setIsModal(false)
-        setTime(20)
         setFeedback(null)
-        setStopTime(false)
         setDisabledButton(true)
     }
     const changeRiddle = async (currentRiddle) => {
         if (!answer.length) return
-        setStopTime(true)
-        if (currentRiddle.answer.indexOf(answer) !== -1) setGuessed(true)
+        if (currentRiddle.answer.trim().toLowerCase().indexOf(answer.trim().toLowerCase()) !== -1) setGuessed(true)
+        else setGuessed(false)
         if (user) {
             firestore.collection('users').doc(user.email).update({
                 ...user,
                 points: user.points + 10,
                 checkedRiddles: [...user.checkedRiddles, currentRiddle.key]
             })
-            // const app = await firestore.collection('answers').add({
-            //     answer,
-            //     guessed,
-            //     userId: user.uid,
-            //     riddleId: currentRiddle.key
-            // })
         }
         setIsModal(true)
     }
@@ -92,9 +70,22 @@ export const Game = ({ user }) => {
     const handleFeedback = (value) => {
         setFeedback(value)
         const time = setTimeout(() => {
+            setFeedbackForAuthor(value)
             nextRiddle()
             clearTimeout(time)
         }, 100)
+    }
+
+    const setFeedbackForAuthor = async (fb) => {
+            const snap = await getAuthor(riddles[index.current].author)
+            const stats = snap.data().stats
+            if (fb === 'like') stats.likes++
+            if (fb === 'dislike') stats.dislikes++
+            firestore.collection('users').doc(riddles[index.current].author).update({ ...snap.data(), stats })
+    }
+
+    const getAuthor = (id) => {
+        return firestore.collection('users').doc(id).get()
     }
 
     const handleContinue = () => {
@@ -109,6 +100,7 @@ export const Game = ({ user }) => {
         setDisabledButton(answer.length ? false : true)
     }
 
+    if (props.length || index.current <= props.length-1) {
         return <div className={style.container}>
             {props.map(({ display, y }, i) => (
                 <animated.div className={style.body} style={{display, transform: y.interpolate(y => `translate3d(0,${y}px,0)`), background: riddles[i].background }} key={i}>
@@ -120,12 +112,12 @@ export const Game = ({ user }) => {
                         <div className={style.bodyUi}>
                             <textarea placeholder="Введите слово или предложение..." value={answer} onChange={handleChangeAnswer} />
                             <Button onClick={() => changeRiddle(riddles[i])} disabled={disabledButton}>Готово</Button>
-                            <span className={style.timer}>00:{time}:00</span>
                         </div>
+                        {author && <Footer author={author} />}
                     </div>
                 </animated.div>
             ))}
-            {isModal && <Modal bgOpacity="0.5" width="50%" height="150px">
+            {isModal && <Modal bgOpacity="0.5" width="50%" height="200px">
                 <div className={style.modalContainer}>
                     <div className={style.modalTitle}>
                         {guessed === true && <div className={style.success}>
@@ -136,6 +128,8 @@ export const Game = ({ user }) => {
                             <span>Как жаль!</span>
                             <span>+0 очков</span>
                         </div>}
+                        Ответ: {riddles[index.current].answer}
+
                     </div>
                     <div className={style.modalContent}>
                         <div className={style.modalFeedback}>
@@ -147,5 +141,11 @@ export const Game = ({ user }) => {
                 </div>
             </Modal>}
       </div>
+    } else return <div className={style.emptyContainer}>
+        <div className={style.titleEmptyContainer}>Упс! Загадки кончились. Пустота...</div>
+        <img src={Empty} alt="Пустота..."/>
+    </div>
+
+        
 
 }

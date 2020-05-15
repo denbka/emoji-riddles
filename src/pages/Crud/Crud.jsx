@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '../../ui'
 import style from './crud.module.scss'
 import { firestore } from '../../services/firebase'
-export const Crud = () => {
+export const Crud = ({ user }) => {
 
     const [ form, setForm ] = useState({
         title: '',
@@ -18,8 +18,10 @@ export const Crud = () => {
     }
 
     const save = (data) => {
-        console.log(data);
-        firestore.collection('riddles').add(data)
+        firestore.collection('riddles').add({
+            ...data,
+            author: user.uid
+        })
 
     }
 
