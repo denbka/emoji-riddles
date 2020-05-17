@@ -38,31 +38,37 @@
     font-size: 18px;
 }
 
-.infobar {
+.buttonEdit {
     display: flex;
-    width: 100%;
-
-    &Item {
-    display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 0 10px;
-    min-width: 100px;
-    flex: 1;
-    border-right: 1px solid #D6D6D6;
-        &Count {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+    width: 50%;
+    height: 50px;
+    margin-top: 25px;
+    margin-bottom: 40px;
+    border: 1px solid #000;
+    color: #000;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: 0;
+    font-size: 18px;
+}
 
-        &Label {
-            font-size: 12px;
-        }
-    }
-
-    &Item:last-child {
-        border: none;
-    }
+.unSubscribing {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 50px;
+    margin-top: 25px;
+    margin-bottom: 40px;
+    border: 1px solid #000;
+    color: #000;
+    background: none;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: 0;
+    font-size: 18px;
 }
 
 .allRiddles {

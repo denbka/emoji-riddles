@@ -2,11 +2,10 @@ import React, { useRef, useState, useEffect } from 'react'
 import { useSprings, animated } from 'react-spring'
 import { getRandomNumber } from '../../helpers'
 import style from './game.module.sass'
-import { Footer } from '../../components'
+import { Footer, EmptyStub } from '../../components'
 import { Button, Modal } from '../../ui'
 import { firestore } from '../../services/firebase'
 import { LikeOutlined, LikeFilled, DislikeFilled, DiffOutlined, DislikeOutlined, LoadingOutlined } from '@ant-design/icons'
-import Empty from '../../assets/img/empty.svg'
 export const Game = ({ user }) => {
 
     const colors = ['#EE5053', '#5AD6FC', '#B362C8', '#EE5053', '#7FC256', '0019ff']
@@ -154,10 +153,7 @@ export const Game = ({ user }) => {
       </div>
     //  else не нужен. Лучше сразу return делать
     // И поразбивай на компоненты
-    } else return <div className={style.emptyContainer}>
-        <div className={style.titleEmptyContainer}>Упс! Загадки кончились. Пустота...</div>
-        <img src={Empty} alt="Пустота..."/>
-    </div>
+    } else return <EmptyStub>Упс! Загадки кончились. Пустота...</EmptyStub>
 
         
 

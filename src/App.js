@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { auth, firestore } from './services/firebase'
 import { Header } from './components'
 import { Drawer } from './ui'
+import { LoadingOutlined } from '@ant-design/icons'
 import {
   Route,
   Switch,
@@ -16,6 +17,7 @@ import {
   Register,
   Profile,
   ProfileEdit,
+  UsersList
 } from './pages'
 import {
   adminRoutes,
@@ -62,7 +64,7 @@ const App = () => {
 
   
 
-  return loading ? <h2>Loading...</h2> : (
+  return loading ? <LoadingOutlined className="app-loading" /> : (
     <>
       <Header isVisible={isVisible} toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} title={title}></Header>
       <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} user={user} />
@@ -71,6 +73,7 @@ const App = () => {
         <PrivateRoute exact path="/riddles/:action" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/users/:uid/:type" authenticated={authenticated} component={UsersList}></PrivateRoute>
         <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
         <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
       </Switch>
