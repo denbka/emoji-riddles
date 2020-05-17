@@ -19,6 +19,11 @@ export const Crud = ({ user }) => {
 
     const save = (data) => {
         // Лучше выносить взаимодействие с базой из компонента
+
+        data.title = data.title.trim()
+        data.emojies = data.emojies.trim()
+        data.answer = data.answer.trim()
+        
         firestore.collection('riddles').add({
             ...data,
             author: user.uid
