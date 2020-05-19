@@ -16,17 +16,19 @@ export const Profile = ({ user }) => {
     const [ isSubscribe, setIsSubscribe ] = useState(false)
 
     useEffect(() => {
-        if (uid) {
-            setMyProfile(user.uid === uid)
-            if (!myProfile) {
-                getUser()
-                checkSubscribe()
-            } else {
-                setCurrentUser(user)
-            }
-            getRiddles(uid)
+        setMyProfile(user.uid === uid)
+        if (!myProfile) {
+            getUser()
+        } else {
+            setCurrentUser(user)
         }
-    }, [uid])
+        getRiddles(uid)
+    }, [ uid ])
+
+    useEffect(() => {
+        if (!currentUser) return
+        checkSubscribe()
+    }, [ currentUser ])
 
     const getUser = async () => {
         const response = await firestore.collection('users').doc(uid).get()
@@ -34,15 +36,12 @@ export const Profile = ({ user }) => {
     }
 
     const checkSubscribe = () => {
-        firestore.collection('following').where('users', 'array-contains', user.uid).onSnapshot(snap => {
-            if (!snap.docs.length) {
-                setIsSubscribe(false)
-                return
-            }
-            const mySubs = snap.docs[0].data()
-            if (mySubs && mySubs.users.includes(user.uid)) {
+        firestore.collection('followers').doc(currentUser.uid).onSnapshot(snap => {
+            if (snap.data().users.includes(user.uid)) {
                 setIsSubscribe(true)
-            } else setIsSubscribe(false)
+            } else {
+                setIsSubscribe(false)
+            }
         })
     }
 
@@ -74,43 +73,47 @@ export const Profile = ({ user }) => {
     }
 
     const handleSubscribe = async () => {
-        await pushItem('followers', currentUser)
-        await pushItem('following', user)
+        await pushItem('followers')
+        await pushItem('following')
     }
 
     const unSubscribing = async () => {
-        await removeItem('followers', currentUser)
-        await removeItem('following', user)
+        await removeItem('followers')
+        await removeItem('following')
     }
 
-    const removeItem = async (type, user) => {
-        firestore.collection('users').doc(user.uid).set({
-            ...user,
+    const removeItem = async (type) => {
+        const user1 = type === 'followers' ? currentUser : user
+        const user2 = type === 'followers' ? user : currentUser
+        firestore.collection('users').doc(user1.uid).set({
+            ...user1,
             stats: {
-                ...user.stats,
-                [type]: user.stats[type]-1
+                ...user1.stats,
+                [type]: user1.stats[type]-1
             }
         })
-        user.stats[type] -= 1
-        const response = await firestore.collection(type).doc(user.uid).get()
+        user1.stats[type] -= 1
+        const response = await firestore.collection(type).doc(user1.uid).get()
         const data = response.data()
-        data.users.splice(data.users.findIndex(item => item === user.uid), 1)
-        firestore.collection(type).doc(user.uid).set(data)
+        data.users.splice(data.users.findIndex(item => item === user2.uid), 1)
+        firestore.collection(type).doc(user1.uid).set(data)
     }
 
-    const pushItem = async (type, user) => {
-        firestore.collection('users').doc(user.uid).set({
-            ...user,
+    const pushItem = async (type) => {
+        const user1 = type === 'followers' ? currentUser : user
+        const user2 = type === 'followers' ? user : currentUser
+        firestore.collection('users').doc(user1.uid).set({
+            ...user1,
             stats: {
-                ...user.stats,
-                [type]: user.stats[type]+1
+                ...user1.stats,
+                [type]: user1.stats[type]+1
             }
         })
-        user.stats[type] += 1
-        const response = await firestore.collection(type).doc(user.uid).get()
+        user1.stats[type] += 1
+        const response = await firestore.collection(type).doc(user1.uid).get()
         const data = response.data()
-        data.users.push(user.uid)
-        firestore.collection(type).doc(user.uid).set(data)
+        data.users.push(user2.uid)
+        firestore.collection(type).doc(user1.uid).set(data)
     }
 
     return (currentUser &&
