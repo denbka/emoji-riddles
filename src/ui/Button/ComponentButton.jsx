@@ -6,7 +6,7 @@ export const Button= ({ onClick, children, className, disabled }) => {
         <button
         disabled={disabled ? 'disabled' : null}
         onClick={onClick}
-        className={`${style.button} ${className} ${disabled && style.disabled}`}>
+        className={`${style.button} ${className && className} ${disabled && style.disabled}`}>
             {children}
         </button>
     )

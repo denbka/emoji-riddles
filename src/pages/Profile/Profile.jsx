@@ -37,7 +37,7 @@ export const Profile = ({ user }) => {
 
     const checkSubscribe = () => {
         firestore.collection('followers').doc(currentUser.uid).onSnapshot(snap => {
-            if (snap.data().users.includes(user.uid)) {
+            if (snap.data().users.some(item => item.uid === user.uid)) {
                 setIsSubscribe(true)
             } else {
                 setIsSubscribe(false)
@@ -95,7 +95,7 @@ export const Profile = ({ user }) => {
         user1.stats[type] -= 1
         const response = await firestore.collection(type).doc(user1.uid).get()
         const data = response.data()
-        data.users.splice(data.users.findIndex(item => item === user2.uid), 1)
+        data.users.splice(data.users.findIndex(item => item.uid === user2.uid), 1)
         firestore.collection(type).doc(user1.uid).set(data)
     }
 
@@ -112,7 +112,7 @@ export const Profile = ({ user }) => {
         user1.stats[type] += 1
         const response = await firestore.collection(type).doc(user1.uid).get()
         const data = response.data()
-        data.users.push(user2.uid)
+        data.users.push(user2)
         firestore.collection(type).doc(user1.uid).set(data)
     }
 

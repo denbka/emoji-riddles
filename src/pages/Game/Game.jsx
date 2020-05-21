@@ -15,6 +15,7 @@ export const Game = ({ user }) => {
     const [ isModal, setIsModal ] = useState(false)
     const [ feedback, setFeedback ] = useState(null)
     const [ guessed, setGuessed ] = useState(false)
+    const [ guessedText, setGuessedText ] = useState(null)
     const [ disabledButton, setDisabledButton ] = useState(true)
     const [ author, setAuthor ] = useState(null)
     const index = useRef(0)
@@ -57,11 +58,11 @@ export const Game = ({ user }) => {
     }
     const changeRiddle = async (currentRiddle) => {
         if (!answer.length) return
-        // Вынести все эти преобразования в переменные
-        // const newGuessed = currentRiddle.answer.trim().toLowerCase().includes(answer.trim().toLowerCase());
-        // setGuessed(newGuessed)
-        if (currentRiddle.answer.trim().toLowerCase().indexOf(answer.trim().toLowerCase()) !== -1) setGuessed(true)
-        else setGuessed(false)
+        const textAnswer = answer.trim().toLowerCase()
+        const newGuessed = currentRiddle.answer.includes(textAnswer)
+        setGuessed(newGuessed)
+        setGuessedText(currentRiddle.answer.find(item => item === textAnswer))
+
         if (user) {
             // Снова сервер в компоненте 
             firestore.collection('users').doc(user.email).update({
@@ -73,22 +74,19 @@ export const Game = ({ user }) => {
         setIsModal(true)
     }
 
-    const handleFeedback = (value) => {
+    const handleFeedback = async (value) => {
         setFeedback(value)
-        // Что дает таймаут на 100?
-        const time = setTimeout(() => {
-            setFeedbackForAuthor(value)
-            nextRiddle()
-            clearTimeout(time)
-        }, 100)
+        await setFeedbackForAuthor(value)
+        nextRiddle()
     }
 
     const setFeedbackForAuthor = async (fb) => {
+        console.log(index, riddles);
             const snap = await getAuthor(riddles[index.current].author)
             const stats = snap.data().stats
             if (fb === 'like') stats.likes++
             if (fb === 'dislike') stats.dislikes++
-            firestore.collection('users').doc(riddles[index.current].author).update({ ...snap.data(), stats })
+            return await firestore.collection('users').doc(riddles[index.current].author).update({ ...snap.data(), stats })
     }
 
     const getAuthor = (id) => {
@@ -108,9 +106,8 @@ export const Game = ({ user }) => {
     }
 
     // Модалку лучше вынести отдельно
-    if (props.length || index.current <= props.length-1) {
         return <div className={style.container}>
-            {props.map(({ display, y }, i) => (
+            {props.length || index.current <= props.length-1 ? props.map(({ display, y }, i) => (
                 // Поч так страшна?
                 <animated.div className={style.body} style={{display, transform: y.interpolate(y => `translate3d(0,${y}px,0)`), background: riddles[i].background }} key={i}>
                     <div className={style.bodyContent}>
@@ -123,10 +120,11 @@ export const Game = ({ user }) => {
                             <textarea placeholder="Введите слово или предложение..." value={answer} onChange={handleChangeAnswer} />
                             <Button onClick={() => changeRiddle(riddles[i])} disabled={disabledButton}>Готово</Button>
                         </div>
-                        {author && <Footer author={author} />}
+                        {author && <Footer author={author} riddleId={riddles[i].key} />}
                     </div>
                 </animated.div>
-            ))}
+            )) : ''}
+            { !props.length || index.current > props.length-1 && <EmptyStub>Упс! Загадки кончились. Пустота...</EmptyStub>}
             {isModal && <Modal bgOpacity="0.5" width="50%" height="200px">
                 <div className={style.modalContainer}>
                     <div className={style.modalTitle}>
@@ -138,8 +136,7 @@ export const Game = ({ user }) => {
                             <span>Как жаль!</span>
                             <span>+0 очков</span>
                         </div>}
-                        Ответ: {riddles[index.current].answer}
-
+                        {guessed && `Ответ: ${guessedText}`}
                     </div>
                     <div className={style.modalContent}>
                         <div className={style.modalFeedback}>
@@ -151,10 +148,4 @@ export const Game = ({ user }) => {
                 </div>
             </Modal>}
       </div>
-    //  else не нужен. Лучше сразу return делать
-    // И поразбивай на компоненты
-    } else return <EmptyStub>Упс! Загадки кончились. Пустота...</EmptyStub>
-
-        
-
 }

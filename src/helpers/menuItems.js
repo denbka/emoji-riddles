@@ -6,7 +6,7 @@ export const loginRoutes = [
   ]
 
 export const mainRoutes = [
-    { name: 'Главная', path: '/' }
+    { name: 'Главная', path: '/' },
 ]
 
 export const privateRoutes = [

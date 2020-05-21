@@ -7,6 +7,10 @@ export const onlyWords = (str) => {
     return str.replace(/[^a-zA-ZА-Яа-яЁё]/gi,'').replace(/\s+/gi,', ')
 }
 
+export const parseUrlQueries = (str) => {
+    return 
+}
+
 export const getTitle = (route, params) => {
     if (route.includes('/riddles/')) return 'Создание загадки'
     if (route.includes('/profile/edit')) return 'Редактирование профиля'

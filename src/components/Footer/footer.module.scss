@@ -8,17 +8,23 @@
     .info {
         display: flex;
         align-items: center;
-
+        color: #000;
+        text-decoration: none;
+        
         .avatar {
             width: 40px;
             margin-right: 10px;
+            border-radius: 50%;
         }
     }
 
     .share {
+        span[role=img] {
+            outline: 0;
+        }
         svg {
             font-size: 30px;
-            margin-left: 10px
+            margin-left: 10px;
         }
     }
 }

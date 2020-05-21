@@ -17,7 +17,8 @@ import {
   Register,
   Profile,
   ProfileEdit,
-  UsersList
+  UsersList,
+  Search
 } from './pages'
 import {
   adminRoutes,
@@ -73,7 +74,7 @@ const App = () => {
         <PrivateRoute exact path="/riddles/:action" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
-        <PrivateRoute exact path="/users/:uid/list/:type" authenticated={authenticated} component={UsersList}></PrivateRoute>
+        <PrivateRoute exact path="/users/:uid/list/:type" authenticated={authenticated}><UsersList user={user} /></PrivateRoute>
         <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
         <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
       </Switch>

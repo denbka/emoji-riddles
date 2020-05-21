@@ -22,13 +22,22 @@ export const Crud = ({ user }) => {
 
         data.title = data.title.trim()
         data.emojies = data.emojies.trim()
-        data.answer = data.answer.trim()
-        
+        data.answer = formatAnswer(data.answer)
         firestore.collection('riddles').add({
             ...data,
             author: user.uid
         })
 
+    }
+
+    const formatAnswer = (answer) => {
+        const data = answer.trim().split(',')
+        const formatArray = []
+        data.map(item => {
+            if (!item.trim().length) return
+            formatArray.push(item.trim().toLowerCase())
+        })
+        return formatArray
     }
 
     return (
@@ -47,12 +56,12 @@ export const Crud = ({ user }) => {
                 <textarea
                 name="emojies"
                 onChange={handleChange}
-                placeholder="Введите слово или предложение..." />
+                placeholder="Введите емоджи..." />
                 <label>Ответ</label>
                 <textarea
                 name="answer"
                 onChange={handleChange}
-                placeholder="Введите слово или предложение..." />
+                placeholder="Введите варианты ответа через запятую..." />
                 <Button
                 onClick={() => save(form)}>
                     Готово
