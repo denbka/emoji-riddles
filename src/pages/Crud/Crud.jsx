@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button } from '../../ui'
+import { Button, message } from '../../ui'
 import style from './crud.module.scss'
 import { firestore } from '../../services/firebase'
 export const Crud = ({ user }) => {
@@ -18,8 +18,6 @@ export const Crud = ({ user }) => {
     }
 
     const save = (data) => {
-        // Лучше выносить взаимодействие с базой из компонента
-
         data.title = data.title.trim()
         data.emojies = data.emojies.trim()
         data.answer = formatAnswer(data.answer)
@@ -27,7 +25,7 @@ export const Crud = ({ user }) => {
             ...data,
             author: user.uid
         })
-
+        message.info('Успешно создано!')
     }
 
     const formatAnswer = (answer) => {

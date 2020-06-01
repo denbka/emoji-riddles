@@ -16,10 +16,11 @@ export const Profile = ({ user }) => {
     const [ isSubscribe, setIsSubscribe ] = useState(false)
 
     useEffect(() => {
-        setMyProfile(user.uid === uid)
+        console.log(user);
+        setMyProfile(user && user.uid === uid ? true : false)
         if (!myProfile) {
             getUser()
-        } else {
+        } else if (user) {
             setCurrentUser(user)
         }
         getRiddles(uid)
@@ -37,7 +38,7 @@ export const Profile = ({ user }) => {
 
     const checkSubscribe = () => {
         firestore.collection('followers').doc(currentUser.uid).onSnapshot(snap => {
-            if (snap.data().users.some(item => item.uid === user.uid)) {
+            if (user && snap.data().users.some(item => item.uid === user.uid)) {
                 setIsSubscribe(true)
             } else {
                 setIsSubscribe(false)
@@ -49,7 +50,7 @@ export const Profile = ({ user }) => {
         firestore.collection('riddles').where('author', '==', id).onSnapshot(snap => {
             const newData = []
             snap.docs.map(item => {
-                newData.push(item.data())
+                newData.push({key: item.id, ...item.data()})
             })
             setRiddles(newData)
         })
@@ -116,8 +117,8 @@ export const Profile = ({ user }) => {
         firestore.collection(type).doc(user1.uid).set(data)
     }
 
-    return (currentUser &&
-        <div className={style.container}>
+    return (
+        currentUser ? <div className={style.container}>
             <div></div>
             <div className={style.mainInfo}>
                 <div className={style.avatar}>
@@ -133,14 +134,15 @@ export const Profile = ({ user }) => {
                     }
                 </div>
                 <span className={style.displayName}>{currentUser.email}</span>
-                {myProfile && <Link to={`/users/${currentUser.uid}/edit`} className={style.buttonEdit}>Изменить</Link>}
-                {!myProfile && !isSubscribe && <Button className={style.button} onClick={handleSubscribe}>Подписаться</Button>}
-                {!myProfile && isSubscribe && <Button className={style.unSubscribing} onClick={unSubscribing}>Отписаться</Button>}
+                {user && myProfile ? <Link to={`/users/${currentUser.uid}/edit`} className={style.buttonEdit}>Изменить</Link> : ''}
+                {user && !myProfile && !isSubscribe ? <Button className={style.button} onClick={handleSubscribe}>Подписаться</Button> : ''}
+                {user && !myProfile && isSubscribe ? <Button className={style.unSubscribing} onClick={unSubscribing}>Отписаться</Button> : ''}
+                {!user && <button style={{opacity: 0, margin: '50px 0'}}></button>}
                 {currentUser.stats && <ProfileBar {...currentUser} />}
             </div>
-            <RiddlesList riddles={riddles} />
+            <RiddlesList {...{ riddles, user, currentUser }} />
 
             {/* <span onClick={() => signout()}>выйти</span> */}
         </div>
-    )
+    : <div>loading</div>)
 }

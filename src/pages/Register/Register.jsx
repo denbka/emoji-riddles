@@ -48,8 +48,8 @@ export const Register = () => {
             uid: response.user.uid
           })
 
-          firestore.collection('followers').doc(response.user.uid).set([])
-          firestore.collection('following').doc(response.user.uid).set([])
+          firestore.collection('followers').doc(response.user.uid).set({users: []})
+          firestore.collection('following').doc(response.user.uid).set({users: []})
           
         } catch (error) {
           setError(error.message)

@@ -29,3 +29,75 @@ textarea, input {
   width: 100vw;
   height: 100vh;
 }
+
+.r-message {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  z-index: 1010;
+  width: 100%;
+  pointer-events: none;
+  text-align: center;
+
+  &-notice {
+    margin-bottom: 10px;
+    animation-name: MessageMoveUp;
+    animation-duration: 0.3s;
+    &-content {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &__content {
+    min-width: 200px;
+    padding: 8px 25px;
+    text-align: center;
+    background: #fff;
+    box-shadow: 1px 0px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+
+    &-success {
+      // color: rgb(43, 182, 25);
+    }
+
+    &-error {
+      // color: rgb(214, 156, 80);
+    }
+
+    &__icon {
+      margin-right: 5px;
+    }
+  }
+
+  &-notice.move-up-leave.move-up-leave-active {
+    animation-name: MessageMoveOut;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
+  }
+}
+
+@keyframes MessageMoveOut {
+  0% {
+    max-height: 150px;
+    opacity: 1;
+  }
+  100% {
+    max-height: 0;
+    margin-top: -25px;
+    opacity: 0;
+  }
+}
+
+@keyframes MessageMoveUp {
+  0% {
+    max-height: 0;
+    margin-top: -25px;
+    opacity: 0;
+  }
+  100% {
+    max-height: 150px;
+    opacity: 1;
+  }
+}

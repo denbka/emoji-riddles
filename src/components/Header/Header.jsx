@@ -9,7 +9,6 @@ export const Header = ({ isOpenMenu, toggleMenu, isVisible, title, backPath }) =
     // backPath не юзается
     const router = useHistory()
     return (
-        // Посмотри либу classnames
         <div className={`${style.container} ${isOpenMenu && style.smallZIndex}`}>
             {isVisible ? <div className={style.content}>
                 <span className={style.title}>{title}</span>

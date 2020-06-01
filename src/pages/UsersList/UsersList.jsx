@@ -24,6 +24,7 @@ export const UsersList = ({ user }) => {
 
 
     const getSubscriptions = async () => {
+        if (!user) return []
         const response = await firestore.collection('following').doc(user.uid).get()
         return response.data().users
     }
@@ -33,7 +34,6 @@ export const UsersList = ({ user }) => {
         firestore.collection(type).doc(uid).onSnapshot(snap => {
             const newData = []
             snap.data().users.map(item => {
-                console.log(subscriptions);
                 item.inSubscriptions = subscriptions.some(sub => sub.uid === item.uid)
                 newData.push(item)
             })
@@ -91,7 +91,8 @@ export const UsersList = ({ user }) => {
         firestore.collection(type).doc(user1.uid).set(data)
     }
 
-    return <div className={style.container}>
+    return (
+        <div className={style.container}>
             <div className="header">
 
             </div>
@@ -104,11 +105,12 @@ export const UsersList = ({ user }) => {
                             <span>{item.info.username ? item.info.username : ''}</span>
                         </div>
                     </div>
-                    {item.uid !== user.uid && <div className={style.buttons}>
+                    {user && item.uid !== user.uid ? <div className={style.buttons}>
                         {!item.inSubscriptions ? <Button className={`${style.button} ${style.buttonSubscribe}`} onClick={(event) => handleSubscribe(event, item)}>подписаться</Button>
                         : <Button className={`${style.button} ${style.buttonUnSubscribe}`} onClick={(event) => unSubscribing(event, item)}>отписаться</Button>}
-                    </div>}
+                    </div> : ''}
                 </div>)
             : <EmptyStub>Здесь пока совсем пусто...</EmptyStub>}
         </div>
+    )
 }

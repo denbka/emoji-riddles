@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './tabs.sass'
 
-const Tabs = ({ tabs, currentTab, onChange }) => {
+export const Tabs = ({ tabs, currentTab, onChange }) => {
 
     const [ data, setData ] = useState(tabs)
 
@@ -30,5 +30,3 @@ const Tabs = ({ tabs, currentTab, onChange }) => {
         </ul>
     )
 }
-
-export { Tabs }

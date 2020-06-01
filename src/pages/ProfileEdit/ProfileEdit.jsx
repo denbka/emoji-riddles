@@ -54,10 +54,9 @@ export const ProfileEdit = ({ user }) => {
         })
     }
 
-    if (info) {
         return (
             // В форму оберни
-            <div className={style.container}>
+            info ? <div className={style.container}>
                 <div className={style.info}>
                     <div className={style.infoItem}>
                         <span className={style.title}>Имя</span>
@@ -89,7 +88,6 @@ export const ProfileEdit = ({ user }) => {
                 </div>
                 <Button onClick={handleSubmit}>Сохранить</Button>
             </div>
+            : <div>loading</div>
         )
-    } else return 'Loaingdasd'
-    
 }

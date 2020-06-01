@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { useSprings, animated } from 'react-spring'
-import { getRandomNumber } from '../../helpers'
+import { getRandomNumber, parseUrlQueries } from '../../helpers'
 import style from './game.module.sass'
-import { Footer, EmptyStub } from '../../components'
-import { Button, Modal } from '../../ui'
+import { Footer, EmptyStub, RiddleBody, FeedbackModal } from '../../components'
 import { firestore } from '../../services/firebase'
-import { LikeOutlined, LikeFilled, DislikeFilled, DiffOutlined, DislikeOutlined, LoadingOutlined } from '@ant-design/icons'
+import { useLocation, useHistory } from 'react-router-dom'
 export const Game = ({ user }) => {
 
     const colors = ['#EE5053', '#5AD6FC', '#B362C8', '#EE5053', '#7FC256', '0019ff']
-
+    const location = useLocation()
+    const router = useHistory()
     const [riddles, setRiddles] = useState([])
     const [ answer, setAnswer ] = useState('')
     const [ isModal, setIsModal ] = useState(false)
@@ -19,13 +19,36 @@ export const Game = ({ user }) => {
     const [ disabledButton, setDisabledButton ] = useState(true)
     const [ author, setAuthor ] = useState(null)
     const index = useRef(0)
-
+    const [ type, setType ] = useState(null)
+    const [ singleRiddle, setSingleRiddle ] = useState(null)
     useEffect(() => {
-        // Опять же. Лучше вынести это. А в useEffect просто оставить выхов
+        checkTypeGame()
+    }, [])
+
+    const checkTypeGame = async () => {
+        const queries = parseUrlQueries(location.search)
+        const issetIdInQuery = queries && queries.some(query => query.name === 'riddleId')
+        if (issetIdInQuery) {
+            setType('single')
+            const response = await getRiddleById(queries.find(query => query.name === 'riddleId'))
+            const author = await getAuthor(response.data().author)
+            setAuthor(author.data())
+            setSingleRiddle({ key: response.id, ...response.data(), background: colors[getRandomNumber(colors.length)]})
+        } else {
+            setType('list')
+            await getRiddles()
+        }
+    } 
+
+    const getRiddleById = query => {
+        return firestore.collection('riddles').doc(query.value).get()
+    }
+
+    const getRiddles = () => {
         firestore.collection('riddles').onSnapshot(async snap => {
             const newData = []
             snap.docs.map(item => {
-                if (user && !user.checkedRiddles.includes(item.id)) {
+                if (user && !user.checkedRiddles.includes(item.id) && item.data().author !== user.uid) {
                     newData.push({ key: item.id, ...item.data(), background: colors[getRandomNumber(colors.length)] })
                 } else if (!user) {
                     newData.push({ key: item.id, ...item.data(), background: colors[getRandomNumber(colors.length)] })
@@ -37,17 +60,14 @@ export const Game = ({ user }) => {
                 setAuthor(author.data())
             }
         })
-    }, [])
+    }
 
-    // Название параметров от странное
     const [props, set] = useSprings(riddles.length, i => ({ y: i * window.innerHeight, display: 'block' }))
 
     const nextRiddle = () => {
         index.current++
         set(i => {
-            // Это все точно никак через css-классы и classNames не сделать?
             if (i < index.current - 1 || i > index.current + 1) return { display: 'none' }
-
             const y = (i - index.current) * window.innerHeight
             return { y: y, display: 'block' }
         })
@@ -64,8 +84,7 @@ export const Game = ({ user }) => {
         setGuessedText(currentRiddle.answer.find(item => item === textAnswer))
 
         if (user) {
-            // Снова сервер в компоненте 
-            firestore.collection('users').doc(user.email).update({
+            firestore.collection('users').doc(user.uid).update({
                 ...user,
                 points: user.points + 10,
                 checkedRiddles: [...user.checkedRiddles, currentRiddle.key]
@@ -77,16 +96,19 @@ export const Game = ({ user }) => {
     const handleFeedback = async (value) => {
         setFeedback(value)
         await setFeedbackForAuthor(value)
-        nextRiddle()
+        if (type === 'list') nextRiddle()
+        else router.push(`/users/${singleRiddle.author}`)
     }
 
     const setFeedbackForAuthor = async (fb) => {
-        console.log(index, riddles);
-            const snap = await getAuthor(riddles[index.current].author)
-            const stats = snap.data().stats
-            if (fb === 'like') stats.likes++
-            if (fb === 'dislike') stats.dislikes++
-            return await firestore.collection('users').doc(riddles[index.current].author).update({ ...snap.data(), stats })
+        const snap = await getAuthor(type === 'list' ? riddles[index.current].author : singleRiddle.author)
+        const stats = snap.data().stats
+        if (fb === 'like') stats.likes++
+        if (fb === 'dislike') stats.dislikes++
+        if (type === 'list')
+        return await firestore.collection('users').doc(riddles[index.current].author).update({ ...snap.data(), stats })
+        if (type === 'single')
+        return await firestore.collection('users').doc(singleRiddle.author).update({ ...snap.data(), stats })
     }
 
     const getAuthor = (id) => {
@@ -94,58 +116,49 @@ export const Game = ({ user }) => {
     }
 
     const handleContinue = () => {
-        const time = setTimeout(() => {
-            nextRiddle()
-            clearTimeout(time)
-        }, 100)
+        if (type === 'list') nextRiddle()
+        else router.push(`/users/${singleRiddle.author}`)
     }
 
     const handleChangeAnswer = event => {
         setAnswer(event.target.value)
         setDisabledButton(answer.length ? false : true)
     }
-
-    // Модалку лучше вынести отдельно
-        return <div className={style.container}>
-            {props.length || index.current <= props.length-1 ? props.map(({ display, y }, i) => (
-                // Поч так страшна?
-                <animated.div className={style.body} style={{display, transform: y.interpolate(y => `translate3d(0,${y}px,0)`), background: riddles[i].background }} key={i}>
-                    <div className={style.bodyContent}>
-                        <div className={style.bodyEmodji}>
-                            <span>{riddles[i].title}</span>
-                            <span>{riddles[i].emojies}</span>
-                        </div>
-                        <div className={style.bodyUi}>
-                            {/* Тоже должно быть в форме */}
-                            <textarea placeholder="Введите слово или предложение..." value={answer} onChange={handleChangeAnswer} />
-                            <Button onClick={() => changeRiddle(riddles[i])} disabled={disabledButton}>Готово</Button>
-                        </div>
-                        {author && <Footer author={author} riddleId={riddles[i].key} />}
-                    </div>
-                </animated.div>
-            )) : ''}
-            { !props.length || index.current > props.length-1 && <EmptyStub>Упс! Загадки кончились. Пустота...</EmptyStub>}
-            {isModal && <Modal bgOpacity="0.5" width="50%" height="200px">
-                <div className={style.modalContainer}>
-                    <div className={style.modalTitle}>
-                        {guessed === true && <div className={style.success}>
-                            <span>Успешно!</span>
-                            <span>+10 очков</span>
-                        </div>}
-                        {guessed === false && <div className={style.fault}>
-                            <span>Как жаль!</span>
-                            <span>+0 очков</span>
-                        </div>}
-                        {guessed && `Ответ: ${guessedText}`}
-                    </div>
-                    <div className={style.modalContent}>
-                        <div className={style.modalFeedback}>
-                            {!feedback ? <LikeOutlined onClick={() => !feedback && handleFeedback('like')} /> : feedback === 'like' ? <LikeFilled /> : <LikeOutlined />}
-                            {!feedback ? <DislikeOutlined onClick={() => !feedback && handleFeedback('dislike')} /> : feedback === 'dislike' ? <DislikeFilled /> : <DislikeOutlined /> }
-                        </div>
-                        <Button className={style.modalContinue} onClick={handleContinue}>Пропустить</Button>
-                    </div>
-                </div>
-            </Modal>}
-      </div>
+        return (
+        <div className={style.container}>
+            {type === 'list' && <div>
+                {props.length || index.current <= props.length-1 ? props.map(({ display, y }, i) => (
+                    <animated.div
+                    key={i}
+                    className={style.body}
+                    style={{
+                        display,
+                        transform: y.interpolate(y => `translate3d(0,${y}px,0)`),
+                        background: riddles[i].background
+                    }}>
+                        <RiddleBody {...{
+                            handleChangeAnswer,
+                            style,
+                            riddle: riddles[i],
+                            changeRiddle,
+                            disabledButton,
+                            answer,
+                            author
+                        }} />
+                    </animated.div>
+                )) : ''}
+            { !props.length || index.current > props.length-1 ? <EmptyStub>Упс! Загадки кончились. Пустота...</EmptyStub> : ''}
+            </div>}
+            {singleRiddle && <RiddleBody {...{
+                            handleChangeAnswer,
+                            style,
+                            riddle: singleRiddle,
+                            changeRiddle,
+                            disabledButton,
+                            answer,
+                            author
+                        }} />}
+            {isModal && <FeedbackModal {...{ style, guessed, guessedText, feedback, handleContinue, handleFeedback }} />}
+        </div>
+        )
 }

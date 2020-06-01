@@ -18,7 +18,6 @@ import {
   Profile,
   ProfileEdit,
   UsersList,
-  Search
 } from './pages'
 import {
   adminRoutes,
@@ -71,7 +70,7 @@ const App = () => {
       <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} user={user} />
       <Switch>
         <Route exact path="/"><Game user={user} /></Route>
-        <PrivateRoute exact path="/riddles/:action" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
+        <PrivateRoute exact path="/riddles/create" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
         <PrivateRoute exact path="/users/:uid/list/:type" authenticated={authenticated}><UsersList user={user} /></PrivateRoute>
