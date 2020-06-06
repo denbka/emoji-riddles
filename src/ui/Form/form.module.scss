@@ -1,13 +1,26 @@
 .form {
-    
+    textarea, input, button {
+        margin: 0;
+    }
 }
 
 .formGroup {
     display: inline-flex;
     flex-direction: column;
-    margin: 10px 0;
+    margin-bottom: 20px;
+
+    &Title {
+        text-align: left;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .errorMessage {
+        color: rgb(204, 33, 33);
+        font-size: 12px;
+    }
 
     label {
-        margin-bottom: 5px;
     }
 }

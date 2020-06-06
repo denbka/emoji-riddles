@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Button, message } from '../../ui'
+import { Button, message, Form } from '../../ui'
 import style from './crud.module.scss'
 import { firestore } from '../../services/firebase'
 export const Crud = ({ user }) => {
-
+    const { Item } = Form
     const [ form, setForm ] = useState({
         title: '',
         emojies: '',
@@ -17,7 +17,8 @@ export const Crud = ({ user }) => {
         })
     }
 
-    const save = (data) => {
+    const save = () => {
+        const data = { ...form }
         data.title = data.title.trim()
         data.emojies = data.emojies.trim()
         data.answer = formatAnswer(data.answer)
@@ -25,7 +26,7 @@ export const Crud = ({ user }) => {
             ...data,
             author: user.uid
         })
-        message.info('Успешно создано!')
+        message.success('Успешно создано!')
     }
 
     const formatAnswer = (answer) => {
@@ -43,28 +44,32 @@ export const Crud = ({ user }) => {
             <div className={style.text}>
                 Придумайте что-то интересное. если загадка понравится пользователям, вам будут начисляться очки.
             </div>
-            <div className={style.bodyUi}>
-                <label>Название</label>
-                {/* Форматирование поехало. И инпуты должны быть в форме. А кнопка должна быть type="submit" */}
-                <input
-                onChange={handleChange}
-                name="title"
-                placeholder="Введите название загадки..." />
-                <label>Загадка</label>
-                <textarea
-                name="emojies"
-                onChange={handleChange}
-                placeholder="Введите емоджи..." />
-                <label>Ответ</label>
-                <textarea
-                name="answer"
-                onChange={handleChange}
-                placeholder="Введите варианты ответа через запятую..." />
-                <Button
-                onClick={() => save(form)}>
-                    Готово
-                </Button>
-            </div>
+            <Form className={style.bodyUi}>
+                <Item label="Название">
+                    <input
+                    onChange={handleChange}
+                    name="title"
+                    placeholder="Введите название загадки..." />
+                </Item>
+                <Item label="Загадка">
+                    <textarea
+                    name="emojies"
+                    onChange={handleChange}
+                    placeholder="Введите емоджи..." />
+                </Item>
+                <Item label="Ответ">
+                    <textarea
+                    name="answer"
+                    onChange={handleChange}
+                    placeholder="Введите варианты ответа через запятую..." />
+                </Item>
+                <Item>
+                    <Button
+                    onClick={save}>
+                        Готово
+                    </Button>
+                </Item>
+            </Form>
         </div>
     )
 }
