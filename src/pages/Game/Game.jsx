@@ -16,13 +16,36 @@ export const Game = ({ user }) => {
     const [ feedback, setFeedback ] = useState(null)
     const [ guessed, setGuessed ] = useState(false)
     const [ guessedText, setGuessedText ] = useState(null)
-    const [ disabledButton, setDisabledButton ] = useState(true)
+    const [ disabledButton, setDisabledButton ] = useState(false)
     const [ author, setAuthor ] = useState(null)
     const index = useRef(0)
     const [ type, setType ] = useState(null)
     const [ singleRiddle, setSingleRiddle ] = useState(null)
+    const [ formErrors, setFormErrors ] = useState({})
+    const rules = {
+        answer: { required: true, message: 'Заполните ответ' }
+    }
+    const displayErrors = () => {
+        let errors = {}
+            if (!answer.trim().length) {
+                errors = {answer: 'Заполните ответ'}
+            }
+        setFormErrors(errors)
+        return errors
+    }
+
+    const сheckValid = () => {
+        const errors = displayErrors()
+        const queue = []
+        Object.entries(errors).map(rule => {
+            if (rule[1]) queue.push(rule[1])
+        })
+        return queue.length ? false : true
+    }
+
     useEffect(() => {
         checkTypeGame()
+        setFormErrors({answer: null})
     }, [])
 
     const checkTypeGame = async () => {
@@ -77,12 +100,14 @@ export const Game = ({ user }) => {
         setDisabledButton(true)
     }
     const changeRiddle = async (currentRiddle) => {
-        if (!answer.length) return
+        if (!сheckValid()) {
+            // message.error('Выберите ответ!')
+            return
+        }
         const textAnswer = answer.trim().toLowerCase()
         const newGuessed = currentRiddle.answer.includes(textAnswer)
         setGuessed(newGuessed)
         setGuessedText(currentRiddle.answer.find(item => item === textAnswer))
-
         if (user) {
             firestore.collection('users').doc(user.uid).update({
                 ...user,
@@ -121,8 +146,16 @@ export const Game = ({ user }) => {
     }
 
     const handleChangeAnswer = event => {
-        setAnswer(event.target.value)
-        setDisabledButton(answer.length ? false : true)
+        const { name, value } = event.target
+        if (rules[name]) {
+            console.log(rules[name], value)
+            if (rules[name].required && !value.trim().length) {
+                setFormErrors({...formErrors, [name]: rules[name].message || 'Заполните ответ'})
+            } else if (value.length) {
+                setFormErrors({...formErrors, [name]: null})
+            }
+        }
+        setAnswer(value)
     }
         return (
         <div className={style.container}>
@@ -142,6 +175,7 @@ export const Game = ({ user }) => {
                             riddle: riddles[i],
                             changeRiddle,
                             disabledButton,
+                            formErrors,
                             answer,
                             author
                         }} />
@@ -155,6 +189,7 @@ export const Game = ({ user }) => {
                             riddle: singleRiddle,
                             changeRiddle,
                             disabledButton,
+                            formErrors,
                             answer,
                             author
                         }} />}

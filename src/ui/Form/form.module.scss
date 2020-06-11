@@ -8,6 +8,7 @@
     display: inline-flex;
     flex-direction: column;
     margin-bottom: 20px;
+    position: relative;
 
     &Title {
         text-align: left;
@@ -20,7 +21,17 @@
         color: rgb(204, 33, 33);
         font-size: 12px;
     }
+    
+    .errorMessageBottom {
+        position: absolute;
+        bottom: 0;
+        margin-bottom: -17px;
+    }
 
     label {
     }
+}
+
+.hidden {
+    display: none;
 }

@@ -142,7 +142,7 @@ export const Profile = ({ user }) => {
             </div>
             <RiddlesList {...{ riddles, user, currentUser }} />
 
-            {/* <span onClick={() => signout()}>выйти</span> */}
+            <span onClick={() => signout()}>выйти</span>
         </div>
     : <div>loading</div>)
 }
