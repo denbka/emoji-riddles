@@ -18,6 +18,7 @@ import {
   Profile,
   ProfileEdit,
   UsersList,
+  NotMobileStub
 } from './pages'
 import {
   adminRoutes,
@@ -36,10 +37,14 @@ const App = () => {
   const [ isVisible, setIsVisible ] = useState(true)
   const [ user, setUser ] = useState(null)
   const [ title, setTitle ] = useState(null)
+  const [ mobile, setMobile ] = useState(false)
   let location = useLocation()
   const params = useParams()
   
   React.useEffect(() => {
+    if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){
+      setMobile(true)
+    }
     if (location.pathname === '/login' || location.pathname === '/register') setIsVisible(false)
     else setIsVisible(true)
     setTitle(getTitle(location.pathname, params))
@@ -62,23 +67,25 @@ const App = () => {
     setIsOpenMenu(!isOpenMenu)
   }
 
-  
-
-  return loading ? <LoadingOutlined className="app-loading" /> : (
-    <>
-      <Header isVisible={isVisible} toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} title={title}></Header>
-      <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} user={user} />
-      <Switch>
-        <Route exact path="/"><Game user={user} /></Route>
-        <PrivateRoute exact path="/riddles/create" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
-        <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
-        <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
-        <PrivateRoute exact path="/users/:uid/list/:type" authenticated={authenticated}><UsersList user={user} /></PrivateRoute>
-        <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
-        <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
-      </Switch>
-    </>
-  )
+  if (!mobile) {
+    return <NotMobileStub />
+  } else {
+    return loading ? <LoadingOutlined className="app-loading" /> : (
+      <>
+        <Header isVisible={isVisible} toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} title={title}></Header>
+        <Drawer toggleMenu={toggleMenu} isOpenMenu={isOpenMenu} list={menu} user={user} />
+        <Switch>
+          <Route exact path="/"><Game user={user} /></Route>
+          <PrivateRoute exact path="/riddles/create" authenticated={authenticated}><Crud user={user} /></PrivateRoute>
+          <PrivateRoute exact path="/users/:uid" authenticated={authenticated}><Profile user={user} /></PrivateRoute>
+          <PrivateRoute exact path="/users/:uid/edit" authenticated={authenticated}><ProfileEdit user={user} /></PrivateRoute>
+          <PrivateRoute exact path="/users/:uid/list/:type" authenticated={authenticated}><UsersList user={user} /></PrivateRoute>
+          <PublicRoute exact path="/register" authenticated={authenticated} component={Register}></PublicRoute>
+          <PublicRoute exact path="/login" authenticated={authenticated} component={Login}></PublicRoute>
+        </Switch>
+      </>
+    )
+  }
 }
 
 
