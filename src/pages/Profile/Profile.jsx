@@ -4,7 +4,8 @@ import { Link, useParams } from 'react-router-dom'
 import { RiddlesList, ProfileBar } from '../../components'
 import { Button, Upload, Modal, message } from '../../ui'
 import style from './profile.module.scss'
-import stub from '../../assets/img/upload-stub.svg'
+import activeStub from '../../assets/img/upload-stub.svg'
+import disableStub from '../../assets/img/stub.svg'
 import { storage, firebase, firestore } from '../../services/firebase'
 export const Profile = ({ user }) => {
 
@@ -62,14 +63,18 @@ export const Profile = ({ user }) => {
         const uploadTask = storage.ref().child(`avatars/${file.name}`).put(file)
 
         uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, () => {}, () => {}, () => {
-            uploadTask.snapshot.ref.getDownloadURL().then(function(photoURL) {
-                firestore.collection('users').doc(currentUser.uid).set({ ...currentUser, photoURL: photoURL })
+            uploadTask.snapshot.ref.getDownloadURL().then(async photoURL => {
+                const newUserData = { ...currentUser, photoURL: photoURL }
+                setCurrentUser(newUserData)
+                await firestore.collection('users').doc(currentUser.uid).set(newUserData)
             })
         })
     }
 
     const handleRemove = () => {
-        firestore.collection('users').doc(currentUser.uid).set({ ...currentUser, photoURL: null })
+        const newUserData = { ...currentUser, photoURL: null }
+        setCurrentUser(newUserData)
+        firestore.collection('users').doc(currentUser.uid).set(newUserData)
         setIsModal(false)
     }
 
@@ -122,12 +127,13 @@ export const Profile = ({ user }) => {
             <div></div>
             <div className={style.mainInfo}>
                 <div className={style.avatar}>
-                    {!currentUser.photoURL ? <Upload onChange={handleChange}>
-                        <img src={stub} alt="заглушка"/>
-                    </Upload>
-                    : <div> 
+                    {!currentUser.photoURL && myProfile ? <Upload onChange={handleChange}>
+                        <img src={activeStub} alt="заглушка"/>
+                    </Upload> : ''}
+                    {!currentUser.photoURL && !myProfile ? <img src={disableStub} alt="заглушка"/> : ''}
+                    {currentUser.photoURL && <div> 
                         <img className={style.notEmptyAvatar} src={currentUser.photoURL} alt="аватар" onClick={() => setIsModal(true)} />
-                        {isModal && <Modal isProfile onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove} bgOpacity="1" width="100%" height="50%">
+                        {isModal && <Modal {...{myProfile}} onClick={() => setIsModal(false)} handleChange={handleChange} handleRemove={handleRemove} bgOpacity="1" width="100%" height="50%">
                             <img src={currentUser.photoURL} alt="аватар" />
                         </Modal>}
                     </div>
@@ -142,7 +148,7 @@ export const Profile = ({ user }) => {
             </div>
             <RiddlesList {...{ riddles, user, currentUser }} />
 
-            <span onClick={() => signout()}>выйти</span>
+            {/* <span onClick={() => signout()}>выйти</span> */}
         </div>
     : <div>loading</div>)
 }
