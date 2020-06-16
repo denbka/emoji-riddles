@@ -38,6 +38,7 @@ const App = () => {
   const [ user, setUser ] = useState(null)
   const [ title, setTitle ] = useState(null)
   const [ mobile, setMobile ] = useState(false)
+  const [ isPWA, setIsPWA ] = useState(false)
   let location = useLocation()
   const params = useParams()
   
@@ -62,6 +63,7 @@ const App = () => {
       }
     })
   }, [location])
+
 
   const toggleMenu = () => {
     setIsOpenMenu(!isOpenMenu)

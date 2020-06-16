@@ -19,7 +19,6 @@ export const RiddlesList = ({ riddles, user, currentUser }) => {
                 : <span><LockOutlined /></span>}
             </Link>)}
         </div>
-        // Почему тут тоже класс не прокинуть?
         : <div><LoadingOutlined  className={style.container} style={{minHeight: '200px', fontSize: '36px'}} /></div>
     )
 }

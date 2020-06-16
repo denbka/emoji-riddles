@@ -97,7 +97,7 @@ export const Game = ({ user }) => {
         setAnswer('')
         setIsModal(false)
         setFeedback(null)
-        setDisabledButton(true)
+        // setDisabledButton(true)
     }
     const changeRiddle = async (currentRiddle) => {
         if (!сheckValid()) {
