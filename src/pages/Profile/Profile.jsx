@@ -6,6 +6,8 @@ import { Button, Upload, Modal, message } from '../../ui'
 import style from './profile.module.scss'
 import activeStub from '../../assets/img/upload-stub.svg'
 import disableStub from '../../assets/img/stub.svg'
+import vkIcon from '../../assets/img/vk-icon.svg'
+import instIcon from '../../assets/img/instagram-icon.svg'
 import { storage, firebase, firestore } from '../../services/firebase'
 export const Profile = ({ user }) => {
 
@@ -15,6 +17,7 @@ export const Profile = ({ user }) => {
     const [ currentUser, setCurrentUser ] = useState(null)
     const [ myProfile, setMyProfile ] = useState(null)
     const [ isSubscribe, setIsSubscribe ] = useState(false)
+    const [ social, setSocial ] = useState({})
 
     useEffect(() => {
         console.log(user);
@@ -23,8 +26,10 @@ export const Profile = ({ user }) => {
             getUser()
         } else if (user) {
             setCurrentUser(user)
+            setSocial(user.info.social)
         }
         getRiddles(uid)
+        
     }, [ uid ])
 
     useEffect(() => {
@@ -35,6 +40,7 @@ export const Profile = ({ user }) => {
     const getUser = async () => {
         const response = await firestore.collection('users').doc(uid).get()
         setCurrentUser(response.data())
+        setSocial(response.data().info.social)
     }
 
     const checkSubscribe = () => {
@@ -122,6 +128,10 @@ export const Profile = ({ user }) => {
         firestore.collection(type).doc(user1.uid).set(data)
     }
 
+    const handleSocialClick = (event, type) => {
+        window.location.reload(type)
+    }
+
     return (
         currentUser ? <div className={style.container}>
             <div></div>
@@ -140,10 +150,16 @@ export const Profile = ({ user }) => {
                     }
                 </div>
                 <span className={style.displayName}>{currentUser.email}</span>
-                {user && myProfile ? <Link to={`/users/${currentUser.uid}/edit`} className={style.buttonEdit}>Изменить</Link> : ''}
-                {user && !myProfile && !isSubscribe ? <Button className={style.button} onClick={handleSubscribe}>Подписаться</Button> : ''}
-                {user && !myProfile && isSubscribe ? <Button className={style.unSubscribing} onClick={unSubscribing}>Отписаться</Button> : ''}
-                {!user && <button style={{opacity: 0, margin: '50px 0'}}></button>}
+                <div className={style.middleBlock}>
+                    {user && myProfile ? <Link to={`/users/${currentUser.uid}/edit`} className={style.buttonEdit}>Изменить</Link> : ''}
+                    {user && !myProfile && !isSubscribe ? <Button className={style.button} onClick={handleSubscribe}>Подписаться</Button> : ''}
+                    {user && !myProfile && isSubscribe ? <Button className={style.unSubscribing} onClick={unSubscribing}>Отписаться</Button> : ''}
+                    {!user && <button style={{opacity: 0, margin: '50px 0'}}></button>}
+                    <div className={style.links}>
+                        {social.vk && <img onClick={event => handleSocialClick(event, social.vk)} src={vkIcon} alt="vk-link"/>}
+                        {social.instagram && <img onClick={event => handleSocialClick(event, social.instagram)} src={instIcon} alt="inst-link"/>}
+                    </div>
+                </div>
                 {currentUser.stats && <ProfileBar {...currentUser} />}
             </div>
             <RiddlesList {...{ riddles, user, currentUser }} />
