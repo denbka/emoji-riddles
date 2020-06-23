@@ -6,7 +6,7 @@ import { Footer, EmptyStub, RiddleBody, FeedbackModal } from '../../components'
 import { firestore } from '../../services/firebase'
 import { useLocation, useHistory } from 'react-router-dom'
 export const Game = ({ user }) => {
-
+    
     const colors = ['#EE5053', '#5AD6FC', '#B362C8', '#EE5053', '#7FC256', '0019ff']
     const location = useLocation()
     const router = useHistory()
